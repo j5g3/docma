@@ -8,8 +8,9 @@
 		"j5g3.inference": "j5g3/inference"
 	},
 	
-	"files": [ "docma.js", "themes/default.html" ],
+	"files": [ "docma.js", "bin/docma.js", "themes/default.html" ],
 	"main": "docma.js",
+	"bin": { "docma": "bin/docma.js" },
 	
 	"devDependencies": {
 		"grunt": "*",
