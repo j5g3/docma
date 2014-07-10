@@ -1,0 +1,22 @@
+{
+	"name": "j5g3.docma",
+	"version": "0.1.1",
+	"description": "A documentation generation tool for Javascript",
+	"dependencies": {
+		"esprima": "*",
+		"underscore": "*",
+		"j5g3.inference": "j5g3/inference"
+	},
+	
+	"files": [ "docma.js", "theme/default.html" ],
+	"main": "docma.js",
+	
+	"devDependencies": {
+		"grunt": "*",
+		"grunt-contrib-jshint": "*",
+		"grunt-contrib-clean": "*",
+		"grunt-contrib-concat": "*",
+		"grunt-contrib-watch": "*",
+		"grunt-contrib-uglify": "*"
+	}	
+}
