@@ -10,7 +10,7 @@
     {
 		/* global exports */
 		/* global require */
-        factory(exports, require('j5g3.inference'));
+        factory(exports, require('j5g3.inference').Inference);
     } else {
         factory(/** @type {object} */root.j5g3, root.j5g3.Inference);
     }
@@ -49,6 +49,7 @@
 		{
 			options = extend({
 				docma: this,
+				title: '',
 				full: true,
 				isTagLabel: {
 					class: true, namespace: true, method: true, static: true,
