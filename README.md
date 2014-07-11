@@ -2,9 +2,9 @@ docma.js
 ========
 
 Javascript documentation tool. Uses esprima for parsing and a custom
-type inference[https://github.com/j5g3/inference] engine for analysis.
+type inference(https://github.com/j5g3/inference) engine for analysis.
 It supports JSDOC style comments using
-j5g3.jsdoc-parser[https://github.com/j5g3/jsdoc-parser]. 
+j5g3.jsdoc-parser(https://github.com/j5g3/jsdoc-parser). 
 
 The engine is fast, and can be used to render documentation on the fly.
 
