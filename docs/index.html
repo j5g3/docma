@@ -3,12 +3,8 @@
 <head>
 	<title>docma.js Live Documentation</title>	
 	<script src="//code.jquery.com/jquery-2.0.3.min.js"></script>	
-	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
 	
-	<script src="../node_modules/esprima/esprima.js"></script>
-	<script src="../node_modules/j5g3.inference/node_modules/j5g3.jsdoc-parser/jsdoc-parser.js"></script>
-	<script src="../node_modules/j5g3.inference/inference.js"></script>
-	<script src="../docma.js"></script>
+	<script src="../build/docma.js"></script>
 	
 	<script async src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>
@@ -17,14 +13,12 @@
 	<script>
 	var docma = new j5g3.Docma();
 	
-	$.when(
-		$.ajax({ url: '../docma.js', dataType: 'text' }),
-		$.ajax({ url: '../themes/default.html', dataType: 'text' })
-	).done(function(source, template) {	
+	$.ajax({ url: '../docma.js', dataType: 'text' })
+		.done(function(source) {	
 		
-		docma.addFile('docma.js', source[0]);
+		docma.addFile('docma.js', source);
 		
-		$('body').html(docma.generate(_.template(template[0]), {
+		$('body').html(docma.generate(false, {
 			full: false,
 			name: 'docma'
 		}));
