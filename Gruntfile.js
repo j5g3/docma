@@ -44,7 +44,7 @@ module.exports = function(grunt) {
 			docma: {
 				compress: true,
 				files: {
-					'build/docma.js': 'build/j5g3.docma.min.js'
+					'build/docma.min.js': 'build/docma.js'
 				}
 			}
 		},
@@ -64,6 +64,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 
-	grunt.registerTask('default', [ 'jshint', 'concat' ]);
-	grunt.registerTask('minify', [ 'default', 'clean', 'uglify' ]);
+	grunt.registerTask('default', [ 'jshint', 'clean', 'concat' ]);
+	grunt.registerTask('minify', [ 'default', 'uglify' ]);
 };
