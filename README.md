@@ -50,7 +50,7 @@ Download/Clone the repository and then run these commands in the root folder.
 Demo
 ----
 
-[docs/index.html](http://j5g3.github.com/docma/docs)
+[docs/index.html](http://j5g3.github.io/docma/docs)
 	Live documentation rendering.
 	
 	
