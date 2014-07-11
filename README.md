@@ -50,7 +50,7 @@ Download/Clone the repository and then run these commands in the root folder.
 Demo
 ----
 
-[docs/index.html](http://coaxialsoftware.github.com/cxl-docs.js/docs)
+[docs/index.html](http://j5g3.github.com/docma/docs)
 	Live documentation rendering.
 	
 	
@@ -59,7 +59,7 @@ Command Line Tool
 
 bin/docma.js
 
-Usage: docma.js [options] sources.js+
+Usage: docma [options] sources.js+
 
 Options:
 
