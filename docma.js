@@ -47,6 +47,7 @@
 
 		generate: function(template, options)
 		{
+			template = template || Docma.template;
 			options = extend({
 				docma: this,
 				title: '',

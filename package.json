@@ -11,6 +11,7 @@
 	"files": [ "docma.js", "bin/docma.js", "themes/default.html" ],
 	"main": "docma.js",
 	"bin": { "docma": "bin/docma.js" },
+	"license": "GPLv3",
 	
 	"devDependencies": {
 		"grunt": "*",

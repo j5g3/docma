@@ -1,17 +1,22 @@
 module.exports = function(grunt) {
 
+	var _ = require('underscore');
+	var template = "j5g3.Docma.template =" +
+		_.template(grunt.file.read('themes/default.html')).source.toString()
+	;
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
 		clean: {
-			docs : [ 'build' ]
+			docma: [ 'build' ]
 		},
 
 		jshint: {
-			docs: {
+			docma: {
 				options: { jshintrc: '.jshintrc' },
 				src: [
-					'src/infer.js'
+					'docma.js'
 				]
 			}
 		},
@@ -19,20 +24,24 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				//banner: grunt.file.read('src/banner.txt'),
-				stripBanners: true
+				stripBanners: true,
+				footer: template
 			},
 
-			docs: {
+			docma: {
 				src: [
-					'node_modules/j5g3.jsdoc-parser/jsdoc-parser.js',
-					'<%= jshint.docs.src %>'
+					'node_modules/esprima/esprima.js',
+					'node_modules/underscore/underscore.js',
+					'node_modules/j5g3.inference/node_modules/j5g3.jsdoc-parser/jsdoc-parser.js',
+					'node_modules/j5g3.inference/inference.js',
+					'<%= jshint.docma.src %>'
 				],
 				dest: 'build/docma.js'
 			},
 		},
 
 		uglify: {
-			docs: {
+			docma: {
 				compress: true,
 				files: {
 					'build/docma.js': 'build/j5g3.docma.min.js'
@@ -41,9 +50,9 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			docs: {
-				files: '<%= jshint.docs.src %>',
-				tasks: [ 'jshint:docs' ]
+			docma: {
+				files: '<%= jshint.docma.src %>',
+				tasks: [ 'jshint:docma' ]
 			}
 		}
 
