@@ -10,11 +10,11 @@
     {
 		/* global exports */
 		/* global require */
-        factory(exports, require('j5g3.inference').Inference);
+        factory(exports, require('j5g3.inference').Inference, root);
     } else {
-        factory(/** @type {object} */root.j5g3, root.j5g3.Inference);
+        factory(/** @type {object} */root.j5g3, root.j5g3.Inference, root);
     }
-}(this, function (exports, Inference) {
+}(this, function (exports, Inference, window) {
 	'use strict';
 
 	function extend(A, B)
@@ -40,14 +40,92 @@
 
 	Docma.prototype = {
 
-		addFile: function(file, source)
+		/// Use to test whether or not all files are done processing.
+		waiting: 0,
+
+		addFileURL: function(file)
 		{
-			this.inference.compile(file, source);
+		var
+			me = this,
+			xhr = new window.XMLHttpRequest(),
+			onload = function() {
+				file.source = xhr.responseText;
+				delete file.url;
+
+				me.waiting--;
+				me.addFile(file);
+				me.checkReady();
+			}
+		;
+			xhr.onload = onload;
+			xhr.open('GET', file.url, true);
+			xhr.send();
 		},
 
-		generate: function(template, options)
+		checkReady: function()
 		{
-			template = template || Docma.template;
+			if (this.waiting===0)
+				this.onready();
+		},
+
+		/**
+		 * Adds a file to the documentation generator. If the file object
+		 * contains a url property it will do an ajax request to try to get
+		 * the source and will call the <code>this.onready</code> function when all
+		 * files have been loaded.
+		 *
+		 * @param {object|string} file The file object or the file name. Properties are file, name, source.
+		 * @param {string} source Source code of the file to parse. Only required if <code>file</code> is a string.
+		 */
+		addFile: function(file, source)
+		{
+			if (typeof(file)==='string')
+				this.inference.compile(file, source);
+			else if (file.url)
+			{
+				this.waiting++;
+				this.addFileURL(file);
+			} else
+				this.inference.compile(file.name, file.source);
+		},
+
+		/**
+		 * Generates a LIVE documentation page.
+		 */
+		live: function(options)
+		{
+		var
+			me = this,
+			doc = window.document,
+			div = doc.createElement('DIV'),
+			node, script,
+			ready = function() {
+				options.full = false;
+				div.innerHTML = me.generate(options);
+
+				while (div.children.length)
+				{
+					node = div.children[0];
+
+					if (node.tagName==='SCRIPT')
+					{
+						script = doc.createElement('SCRIPT');
+						script.innerHTML = node.innerHTML;
+						doc.body.appendChild(script);
+						div.removeChild(node);
+					} else
+						doc.body.appendChild(node);
+				}
+			}
+		;
+			options.files.forEach(this.addFile.bind(this));
+			this.onready = ready;
+			this.checkReady();
+		},
+
+		generate: function(options)
+		{
+			var template = (options && options.template) || Docma.template;
 			options = extend({
 				docma: this,
 				title: '',
@@ -151,6 +229,17 @@
 			}
 		}
 
+	};
+
+	/**
+	 * Creates a Docma object and call the <code>live</code> function with
+	 * the specified options.
+	 */
+	Docma.live = function(options)
+	{
+		var d = new Docma();
+		d.live(options);
+		return d;
 	};
 
 	exports.Docma = Docma;

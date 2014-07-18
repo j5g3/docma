@@ -11,17 +11,9 @@
 	<script async src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/languages/javascript.min.js"></script>
 	
 	<script>
-	var docma = new j5g3.Docma();
-	
-	$.ajax({ url: '../docma.js', dataType: 'text' })
-		.done(function(source) {	
-		
-		docma.addFile('docma.js', source);
-		
-		$('body').html(docma.generate(false, {
-			full: false,
-			name: 'docma'
-		}));
+	j5g3.Docma.live({
+		name: 'docma',
+		files: [ { name: 'docma.js', url: '../docma.js' } ]
 	});
 	</script>
 </head>
