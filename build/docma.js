@@ -6644,11 +6644,11 @@ parseStatement: true, parseSourceElement: true */
     {
 		/* global exports */
 		/* global require */
-        factory(exports, require('j5g3.inference').Inference);
+        factory(exports, require('j5g3.inference').Inference, root);
     } else {
-        factory(/** @type {object} */root.j5g3, root.j5g3.Inference);
+        factory(/** @type {object} */root.j5g3, root.j5g3.Inference, root);
     }
-}(this, function (exports, Inference) {
+}(this, function (exports, Inference, window) {
 	'use strict';
 
 	function extend(A, B)
@@ -6674,14 +6674,92 @@ parseStatement: true, parseSourceElement: true */
 
 	Docma.prototype = {
 
-		addFile: function(file, source)
+		/// Use to test whether or not all files are done processing.
+		waiting: 0,
+
+		addFileURL: function(file)
 		{
-			this.inference.compile(file, source);
+		var
+			me = this,
+			xhr = new window.XMLHttpRequest(),
+			onload = function() {
+				file.source = xhr.responseText;
+				delete file.url;
+
+				me.waiting--;
+				me.addFile(file);
+				me.checkReady();
+			}
+		;
+			xhr.onload = onload;
+			xhr.open('GET', file.url, true);
+			xhr.send();
 		},
 
-		generate: function(template, options)
+		checkReady: function()
 		{
-			template = template || Docma.template;
+			if (this.waiting===0)
+				this.onready();
+		},
+
+		/**
+		 * Adds a file to the documentation generator. If the file object
+		 * contains a url property it will do an ajax request to try to get
+		 * the source and will call the <code>this.onready</code> function when all
+		 * files have been loaded.
+		 *
+		 * @param {object|string} file The file object or the file name. Properties are file, name, source.
+		 * @param {string} source Source code of the file to parse. Only required if <code>file</code> is a string.
+		 */
+		addFile: function(file, source)
+		{
+			if (typeof(file)==='string')
+				this.inference.compile(file, source);
+			else if (file.url)
+			{
+				this.waiting++;
+				this.addFileURL(file);
+			} else
+				this.inference.compile(file.name, file.source);
+		},
+
+		/**
+		 * Generates a LIVE documentation page.
+		 */
+		live: function(options)
+		{
+		var
+			me = this,
+			doc = window.document,
+			div = doc.createElement('DIV'),
+			node, script,
+			ready = function() {
+				options.full = false;
+				div.innerHTML = me.generate(options);
+
+				while (div.children.length)
+				{
+					node = div.children[0];
+
+					if (node.tagName==='SCRIPT')
+					{
+						script = doc.createElement('SCRIPT');
+						script.innerHTML = node.innerHTML;
+						doc.body.appendChild(script);
+						div.removeChild(node);
+					} else
+						doc.body.appendChild(node);
+				}
+			}
+		;
+			options.files.forEach(this.addFile.bind(this));
+			this.onready = ready;
+			this.checkReady();
+		},
+
+		generate: function(options)
+		{
+			var template = (options && options.template) || Docma.template;
 			options = extend({
 				docma: this,
 				title: '',
@@ -6787,6 +6865,17 @@ parseStatement: true, parseSourceElement: true */
 
 	};
 
+	/**
+	 * Creates a Docma object and call the <code>live</code> function with
+	 * the specified options.
+	 */
+	Docma.live = function(options)
+	{
+		var d = new Docma();
+		d.live(options);
+		return d;
+	};
+
 	exports.Docma = Docma;
 
 }));j5g3.Docma.template =function(obj){
@@ -6795,7 +6884,7 @@ with(obj||{}){
 __p+='';
  if (full) { 
 __p+='\n<!DOCTYPE html>\n<html>\n<Mead>\n\t<title>'+
-((__t=( title || 'Documentation' ))==null?'':_.escape(__t))+
+((__t=( title || (name + ' Documentation') ))==null?'':_.escape(__t))+
 '</title>\n</Mead>\n<body>\n';
  } 
 __p+='\n\t<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />\n\t<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" />\n\t<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/default.min.css" />\n\t<style>\n\t\tcode { white-space: normal; }\n\t\tpre.ln-right { padding-left: 55px; position: relative; }\n\t\tpre.ln-right .line { position: absolute; left: 0; width: 45px; text-align: right; display: inline-block;}\n\t\tbody { padding-top: 70px; }\n\t\tlegend { font-size: 17px; margin-bottom: 5px; }\n\t\tlegend:only-child { display: none; }\n\t\tfieldset { margin-bottom: 10px; }\n\t\t\n\t\t#cards > .panel { display: none; margin-bottom: 10px; }\n\t\t#cards.filter-namespace > .namespace,\n\t\t#cards.filter-class > .class,\n\t\t#cards.filter-mixin > .mixin,\n\t\t#cards.filter-file > .file,\n\t\t#cards.filter-method.filter-public > .method.public,\n\t\t#cards.filter-method.filter-private > .method.private,\n\t\t#cards.filter-method.filter-protected > .method.protected,\n\t\t#cards.filter-property.filter-public > .property.public,\n\t\t#cards.filter-property.filter-private > .property.private,\n\t\t#cards.filter-property.filter-protected > .property.protected,\n\t\t#cards.filter-static.filter-public > .static.public,\n\t\t#cards.filter-static.filter-private > .static.private,\n\t\t#cards.filter-static.filter-protected > .static.protected,\n\t\t#cards.filter-deprecated > .deprecated\n\t\t\t{ display: block; }\n\t\t\t\n\t\t#cards table:empty { display: none; }\n\t\t\n\t\t.label.desc, .label.extends, .label.author, .label.alias { display: none; }\n\t\t.label.deprecated { background-color: #d9534f; }\n\t\t@media (max-width: 768px) {\n\t\t\t.navbar-brand { margin-left: 15px; }\n\t\t}\n\t\t\n\t\t#tree { overflow-y: auto; }\n\t</style>\n\n\t<nav class="navbar navbar-default navbar-fixed-top" role="navigation">\n\t  <!-- Brand and toggle get grouped for better mobile display -->\n\t  <div class="navbar-header">\n\t    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">\n\t      <span class="sr-only">Toggle navigation</span>\n\t      <span class="icon-bar"></span>\n\t      <span class="icon-bar"></span>\n\t      <span class="icon-bar"></span>\n\t    </button>\n\t    <ul class="nav navbar-nav">\n\t    <li class="dropdown">\n\t\t    <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="#">'+
@@ -6804,7 +6893,7 @@ __p+='\n\t<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3
  docma.eachSymbol(files, function(symbol, tags, value, sid) { 
 __p+='\n\t\t\t<div data-id="file-'+
 ((__t=( symbol.name ))==null?'':_.escape(__t))+
-'" class="panel panel-success file %>">\n\t\t\t\t<div class="panel-heading">\n\t\t\t\t\t<div class="pull-right">\n\t\t\t\t\t\t<span class="label label-default">file</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<h3 class="panel-title">\n\t\t\t\t\t\t<a name="'+
+'" class="panel panel-success file">\n\t\t\t\t<div class="panel-heading">\n\t\t\t\t\t<div class="pull-right">\n\t\t\t\t\t\t<span class="label label-default">file</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<h3 class="panel-title">\n\t\t\t\t\t\t<a name="'+
 ((__t=(symbol.name ))==null?'':_.escape(__t))+
 '" data-toggle="collapse" href="#file-'+
 ((__t=( sid ))==null?'':__t)+
@@ -6948,9 +7037,23 @@ __p+='\n\t\t\t\t\t\t<small class="pull-right">\n\t\t\t\t\t\t\t<a onclick="go(thi
  } 
 __p+='\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t';
  }); 
-__p+='\n\t\t\t</div>\n\t\t</div>\n\t</div>\n\t<footer class="text-center">\n\t\t<small>Generated by <a href="https://github.com/j5g3/docma">j5g3.docma</a></small>\n\t</footer>\n\t\n\t<script>\n\t$(function() {\n\tvar\n\t\tcards = $(\'#cards\').children(),\n\t\tsearch_input = $(\'#search\'),\n\t\tsearch_delay = 300,\n\t\tsearch_id,\n\t\tsearch_view,\n\t\t\n\t\t$window = $(window),\n\t\t$settings = {\n\t\t\tview: $(\'#settings-view input\')\n\t\t},\n\t\t$active,\n\t\t$tree = $(\'#tree\'),\n\t\t\n\t\tget_filter = function()\n\t\t{\n\t\t\treturn $.makeArray($settings.view.map(function(input) {\n\t\t\t\treturn this.checked ? \'filter-\' + this.value : null;\n\t\t\t})).join(\' \');\n\t\t},\n\t\t\n\t\tfilter = function(ev)\n\t\t{\n\t\t\t$(\'#cards\').removeClass().addClass(get_filter());\t\n\t\t\tev && ev.stopPropagation();\n\t\t},\n\t\t\n\t\tresize = function()\n\t\t{\n\t\t\t$tree.css(\'max-height\', $window.height()-70);\n\t\t}\n\t;\n\t\tfunction scroll(el)\n\t\t{\n\t\t\t$(\'html, body\').animate({\n\t\t        scrollTop: el.offset().top -60\n\t\t    }, 1000);\t\n\t\t}\n\t\t\n\t\twindow.go = function go(link)\n\t\t{\n\t\t\tif ($active)\n\t\t\t\t$active.hide();\n\t\t\t\t\n\t\t\tvar $link = $(\'a[name="\' + link.hash.substr(1) + \'"]\'); \t\n\t\t\t\n\t\t\t$active = $link.parents(\'.panel\').show();\n\t\t\t$link.parents(\'.collapse\').eq(0).collapse(\'show\');\n\t\t\tscroll($link);\n\t\t\t\n\t\t\treturn false;\t\t\t\n\t\t}\n\t\t\n\t\tfunction lines()\n\t\t{\n\t\t\t$(\'code.lines\').each(function() {\n\t\t\t\tthis.innerHTML = docma.addSourceLineNumbers(\n\t\t\t\t\tthis.innerHTML, this.dataset.prefix\n\t\t\t\t);\n\t\t\t});\n\t\t}\n\t\t\n\t\tsearch_input.keyup(function() {\n\t\t\tif (search_id)\n\t\t\t\tclearTimeout(search_id);\n\t\t\t\t\n\t\t\tsearch_id = setTimeout(search, search_delay);\t\t\n\t\t});\n\t\tfilter();\n\t\t\n\t\t$tree.html(\''+
+__p+='\n\t\t\t</div>\n\t\t</div>\n\t</div>\n\t<footer class="text-center">\n\t\t<small>Generated by <a href="https://github.com/j5g3/docma">j5g3.docma</a></small>\n\t</footer>\n\t\n\t<script>\n\t$(function() {\n\tvar\n\t\tcards = $(\'#cards\').children(),\n\t\tsearch_input = $(\'#search\'),\n\t\tsearch_delay = 300,\n\t\tsearch_id,\n\t\tsearch_view,\n\t\t\n\t\t$window = $(window),\n\t\t$settings = {\n\t\t\tview: $(\'#settings-view input\')\n\t\t},\n\t\t$active,\n\t\t$tree = $(\'#tree\'),\n\t\t\n\t\tget_filter = function()\n\t\t{\n\t\t\treturn $.makeArray($settings.view.map(function(input) {\n\t\t\t\treturn this.checked ? \'filter-\' + this.value : null;\n\t\t\t})).join(\' \');\n\t\t},\n\t\t\n\t\tfilter = function(ev)\n\t\t{\n\t\t\t$(\'#cards\').removeClass().addClass(get_filter());\t\n\t\t\tev && ev.stopPropagation();\n\t\t},\n\t\t\n\t\tresize = function()\n\t\t{\n\t\t\t$tree.css(\'max-height\', $window.height()-70);\n\t\t}\n\t;\n\t\tfunction scroll(el)\n\t\t{\n\t\t\t$(\'html, body\').animate({\n\t\t        scrollTop: el.offset().top -60\n\t\t    }, 1000);\t\n\t\t}\n\t\t\n\t\twindow.go = function go(link)\n\t\t{\n\t\t\tif ($active)\n\t\t\t\t$active.hide();\n\t\t\t\t\n\t\t\tvar $link = $(\'a[name="\' + link.hash.substr(1) + \'"]\'); \t\n\t\t\t\n\t\t\t$active = $link.parents(\'.panel\').show();\n\t\t\t$link.parents(\'.collapse\').eq(0).collapse(\'show\');\n\t\t\tscroll($link);\n\t\t\t\n\t\t\treturn false;\t\t\t\n\t\t}\n\t\t\n\t\t\n\t\tsearch_input.keyup(function() {\n\t\t\tif (search_id)\n\t\t\t\tclearTimeout(search_id);\n\t\t\t\t\n\t\t\tsearch_id = setTimeout(search, search_delay);\t\t\n\t\t});\n\t\tfilter();\n\t\t\n\t\t$tree.html(\''+
 ((__t=( tree ))==null?'':__t)+
-'\');\n\t\t$settings.view.click(filter);\n\t\t$window.resize(resize).resize();\n\t\t\n\t\tif (window.hljs)\n\t\t\tsetTimeout(function() {\n\t\t\t\thljs.initHighlighting();\n\t\t\t\tlines();\n\t\t\t});\n\t\telse\n\t\t\tlines();\n\t});\n\t</script>\n';
+'\');\n\t\t$settings.view.click(filter);\n\t\t$window.resize(resize).resize();\n\t\t\n\t\t';
+
+			setTimeout(function() {
+				if (!window.hljs)
+					return;
+					
+				hljs.initHighlighting();
+				$('code.lines').each(function() {
+					this.innerHTML = docma.addSourceLineNumbers(
+						this.innerHTML, this.dataset.prefix
+					);
+				});
+			});
+		
+__p+='\n\t});\n\t</script>\n';
  if (full) { 
 __p+='\n\t<!-- Manually load scripts if life -->\n\t<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>\n\t<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>\n\t<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/languages/javascript.min.js"></script>\n</body>\n</html>\n';
  } 
