@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <Mead>
-	<title><%- title || 'Documentation' %></title>
+	<title><%- title || (name + ' Documentation') %></title>
 </Mead>
 <body>
 <% } %>
@@ -94,7 +94,7 @@
 		<div class="col-md-12">
 			<div id="cards">
 			<% docma.eachSymbol(files, function(symbol, tags, value, sid) { %>
-			<div data-id="file-<%- symbol.name %>" class="panel panel-success file %>">
+			<div data-id="file-<%- symbol.name %>" class="panel panel-success file">
 				<div class="panel-heading">
 					<div class="pull-right">
 						<span class="label label-default">file</span>
@@ -264,14 +264,6 @@
 			return false;			
 		}
 		
-		function lines()
-		{
-			$('code.lines').each(function() {
-				this.innerHTML = docma.addSourceLineNumbers(
-					this.innerHTML, this.dataset.prefix
-				);
-			});
-		}
 		
 		search_input.keyup(function() {
 			if (search_id)
@@ -285,13 +277,19 @@
 		$settings.view.click(filter);
 		$window.resize(resize).resize();
 		
-		if (window.hljs)
+		<%
 			setTimeout(function() {
+				if (!window.hljs)
+					return;
+					
 				hljs.initHighlighting();
-				lines();
+				$('code.lines').each(function() {
+					this.innerHTML = docma.addSourceLineNumbers(
+						this.innerHTML, this.dataset.prefix
+					);
+				});
 			});
-		else
-			lines();
+		%>
 	});
 	</script>
 <% if (full) { %>
