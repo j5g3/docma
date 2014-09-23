@@ -34,7 +34,9 @@
 	{
 		extend(this, p);
 
-		this.inference = this.inference || new Inference();
+		this.inference = this.inference || new Inference({
+			debug: this.debug
+		});
 		this._linkCache = {};
 	}
 
@@ -235,9 +237,9 @@
 	 * Creates a Docma object and call the <code>live</code> function with
 	 * the specified options.
 	 */
-	Docma.live = function(options)
+	Docma.live = function(options, docma_options)
 	{
-		var d = new Docma();
+		var d = new Docma(docma_options);
 		d.live(options);
 		return d;
 	};
