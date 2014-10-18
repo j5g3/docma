@@ -5493,7 +5493,8 @@ parseStatement: true, parseSourceElement: true */
 					this.type.set(value);
 					this.value = value;
 				}
-			}
+			} else if (this.value === undefined)
+				this.value = Unknown;
 
 			return value;
 		},
@@ -5506,6 +5507,8 @@ parseStatement: true, parseSourceElement: true */
 
 			if (this.tags.private || this.tags.protected)
 				delete this.tags.public;
+
+			delete this.tags.system;
 		},
 
 		toString: function()
@@ -5527,6 +5530,8 @@ parseStatement: true, parseSourceElement: true */
 	/** When we dont have a return value */
 	function Unknown() {}
 
+	Unknown.toString = function() { return '?'; };
+
 	function SymbolTable(scope)
 	{
 		this.scope = scope;
@@ -5546,6 +5551,10 @@ parseStatement: true, parseSourceElement: true */
 			for (i in type.properties)
 			{
 				prop = type.properties[i];
+
+				if (prop.tags.system)
+					continue;
+
 				value = prop.value;
 
 				this.process(prop, parent);
@@ -5601,9 +5610,13 @@ parseStatement: true, parseSourceElement: true */
 
 		tagClass: function(symbol)
 		{
-			if (!symbol.tags.method && symbol.type.function)
+			if (symbol.value && !symbol.tags.method &&
+				(symbol.type.function || symbol.tags.missing))
 			{
-				var obj = symbol.value.properties.prototype.value;
+				var obj = symbol.value.properties &&
+					symbol.value.properties.prototype &&
+					symbol.value.properties.prototype.value;
+
 				if (obj && obj.modified)
 					symbol.tags.class = true;
 			}
@@ -5644,9 +5657,12 @@ parseStatement: true, parseSourceElement: true */
 
 		add: function(property, symbol)
 		{
+			var p = this.properties[property];
+
 			this.modified = true;
-			this.properties[property] = symbol;
-			return symbol;
+
+			return (p && symbol.value === Unknown) ? p
+				: this.properties[property] = symbol;
 		},
 
 		delete: function(property)
@@ -5854,6 +5870,17 @@ parseStatement: true, parseSourceElement: true */
 
 	extend(ScopeManager.prototype, {
 
+		with: function(scope, cb, cbscope)
+		{
+			var c = this.current, s = this.stack, result;
+
+			this.stack = [ this.current = scope ];
+			result = cb.call(cbscope);
+			this.stack = s;
+			this.current = c;
+			return result;
+		},
+
 		addGlobal: function(symbol)
 		{
 			this.root.add(symbol.name, symbol);
@@ -6048,8 +6075,10 @@ parseStatement: true, parseSourceElement: true */
 
 			if (obj instanceof Symbol)
 				result = obj.value;
+			if (!result || result === Unknown)
+				result = this.missingObject(obj);
 
-			return result || this.missingObject(obj);
+			return result;
 		},
 
 		MemberExpression: function(node)
@@ -6253,8 +6282,7 @@ parseStatement: true, parseSourceElement: true */
 		NewExpression: function(node)
 		{
 		var
-			symbol = this.walk(node.callee),
-			fn = (symbol instanceof Symbol) ? symbol.value : symbol,
+			fn = this.Function(node),
 			result = Unknown,
 			ctor
 		;
@@ -6262,15 +6290,13 @@ parseStatement: true, parseSourceElement: true */
 			{
 				result = new ObjectType();
 				this.doCall(fn, node.arguments, result);
-				ctor = new Symbol('constructor', symbol);
+				ctor = new Symbol('constructor', fn);
 				ctor.tags.system = true;
 
 				result.add('constructor', ctor);
 			} else if (node.arguments)
 			{
-				node.arguments.forEach(function(arg) {
-					this.Value(arg);
-				}, this);
+				node.arguments.forEach(this.walk, this);
 			}
 
 			return result;
@@ -6287,7 +6313,7 @@ parseStatement: true, parseSourceElement: true */
 			symbol = this.walk(node.callee),
 			fn = (symbol instanceof Symbol) ? symbol.value : symbol
 		;
-			if (fn && (fn instanceof FunctionType || fn.constructor===Function))
+			if (fn && fn!==Unknown && (fn instanceof FunctionType || fn.constructor===Function))
 				return fn;
 		},
 
@@ -6336,8 +6362,12 @@ parseStatement: true, parseSourceElement: true */
 
 		missingObject: function(obj)
 		{
-			obj.value = new ObjectType();
-			return obj.value;
+			var result = new ObjectType();
+
+			if (obj instanceof Symbol)
+				obj.set(result);
+
+			return result;
 		},
 
 		missingProperty: function(obj, node)
@@ -6345,7 +6375,7 @@ parseStatement: true, parseSourceElement: true */
 			var symbol = this.declareSymbol(node);
 			symbol.tags.missing = true;
 			obj.add(symbol.name, symbol);
-			return this.defineSymbol(symbol);
+			return this.defineSymbol(symbol, Unknown);
 		}
 
 	};
@@ -6411,8 +6441,11 @@ parseStatement: true, parseSourceElement: true */
 		var
 			symbol = this.compiler.findSymbol(match.type) ||
 				this.compiler.scope.module,
-			value = symbol.value || symbol.set(new ObjectType())
+			value = symbol.value
 		;
+			if (!value || value===Unknown)
+				value = symbol.set(new ObjectType());
+
 			match.meta.lends = value;
 		},
 
@@ -6661,8 +6694,7 @@ parseStatement: true, parseSourceElement: true */
 			var symbols = "Object.create = function(proto) { var F = function() {}; " +
 			"F.prototype = proto; return new F(); };";
 
-			if (this.node)
-				symbols += "this.exports = this;";
+			symbols += this.node ? "this.exports = this;" : 'this.window=this;';
 
 			var ast = esprima.parse(symbols);
 
@@ -6694,7 +6726,7 @@ parseStatement: true, parseSourceElement: true */
 			return this.walker.walk(ast);
 		},
 
-		findSymbol: function(id)
+		findSymbol: function(id, scope)
 		{
 			if (!id)
 				return id;
@@ -6703,8 +6735,13 @@ parseStatement: true, parseSourceElement: true */
 				.replace(/#/g, '.prototype.')
 			;
 
-			var ast = esprima.parse(id, {range: false});
-			return this.walker.walk(ast);
+			return this.walker.scope.with(scope || this.walker.scope.root,
+				function() {
+					return this.walker.walk(
+						esprima.parse(id, {range: false})
+					);
+				}, this
+			);
 		},
 
 		getSymbols: function()
