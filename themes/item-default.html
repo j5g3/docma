@@ -1,0 +1,75 @@
+
+<% var tagArray = tags.toArray(); %>
+<div data-id="<%- id %>" class="card card-block <%= tagArray.join(' ') %>">
+	<div class="pull-xs-right">
+	<% _.each(tagArray, function(tag) { %>
+		<% if (Docma.isTagLabel[tag]) { %>
+		<span class="label label-default"><%= tag %></span>
+		<% } %>
+	<% }) %>	
+	</div>
+	<h4 class="card-title">
+		<a name="<%-id %>"></a><%- id %>
+	</h4>
+	<div id="<%= id %>-body">
+		<% if (typeof tags.deprecated==='string') { %>
+		<div class="alert alert-danger">deprecated <%- tags.deprecated %></div>
+		<% } %>
+
+		<p><code><%- obj.value %></code></p>
+
+		<table class="table table-condensed">
+		<% _.each(obj.value && value.parameters, function(p) { if (p.tags.desc) { %>
+		<tr>
+			<td width="18%"><%-p.name %></td>
+			<td width="18%"><%-p.type %></td>
+			<td width="64%"><%=p.tags.desc%></td>
+		</tr>
+		<% }}) %></table>
+
+		<% if (tags.desc) { %>
+			<div><%= Docma.text(tags.desc) %></div>
+		<% } %>
+
+		<ul class="list-unstyled">
+		<% if (tags.returns) { %>
+			<li><strong>@returns</strong> <code><%- tags.returns %></code> <%- tags.returns.desc %></li>
+		<% } %>
+
+		<% _.each(['extends', 'throws', 'author', 'alias'], function(tag) { %>
+		<% if (tags[tag]) { %>
+			<li><strong>@<%- tag %></strong> <%- tags[tag] %></li>
+		<% }}) %>
+		</ul>
+
+		<% if (obj.value && value.properties) { %>
+		<fieldset>
+		<legend><small>Static Members</small></legend>
+
+		<% Docma.eachSymbol(value.properties, function(prop) { %>
+		<div class="col-md-3 col-sm-4 col-xs-6"><%= Docma.link(prop, prop.name) %></a></div>	
+		<% }) %>
+		</fieldset>
+
+		<% if (value.properties.prototype && value.properties.prototype.value) { %>
+		<fieldset>
+		<legend><small>Instance Members</small></legend>
+		<% Docma.eachSymbol(value.properties.prototype.value.properties, function(prop) { %>
+			<div class="col-md-3 col-sm-4 col-xs-6"><%= Docma.link(prop, prop.name) %></a></div>	
+		<% })}} %>
+		</fieldset>
+			
+		<% if (tags.example) { %>
+			<pre><%- tags.example%></pre>
+		<% } %>
+
+		<% if (obj.source) { %>
+		<small class="pull-right">
+		<a onclick="go(this)" href="#<%= source %>">
+			<i class="fa fa-code"></i> view source
+		</a>
+		</small>
+		<% } %>
+	</div>
+</div>
+

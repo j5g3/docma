@@ -1,24 +1,14 @@
-<% if (full) { %>
-<!DOCTYPE html>
-<html>
-<Mead>
-	<title><%- title || (name + ' Documentation') %></title>
-</Mead>
-<body>
-<% } %>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/default.min.css" />
+	
 	<style>
 		code { white-space: normal; }
 		pre.ln-right { padding-left: 55px; position: relative; }
 		pre.ln-right .line { position: absolute; left: 0; width: 45px; text-align: right; display: inline-block;}
-		body { padding-top: 70px; }
 		legend { font-size: 17px; margin-bottom: 5px; }
 		legend:only-child { display: none; }
 		fieldset { margin-bottom: 10px; }
+		footer { margin-bottom: 16px; }
 		
-		#cards > .panel { display: none; margin-bottom: 10px; }
+		#cards > .panel { margin-bottom: 10px; }
 		#cards.filter-namespace > .namespace,
 		#cards.filter-class > .class,
 		#cards.filter-mixin > .mixin,
@@ -39,264 +29,50 @@
 		
 		.label.desc, .label.extends, .label.author, .label.alias { display: none; }
 		.label.deprecated { background-color: #d9534f; }
-		@media (max-width: 768px) {
-			.navbar-brand { margin-left: 15px; }
-		}
 		
 		#tree { overflow-y: auto; }
 	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
 
-	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-	  <!-- Brand and toggle get grouped for better mobile display -->
-	  <div class="navbar-header">
-	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
-	      <span class="sr-only">Toggle navigation</span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	    </button>
-	    <ul class="nav navbar-nav">
-	    <li class="dropdown">
-		    <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="#"><%- name %> <b class="caret"></b></a>
-	        <ul id="tree" class="dropdown-menu">
-	        </ul>
-	    </li>
-	    </ul>
-	  </div>
-	
-	  <!-- Collect the nav links, forms, and other content for toggling -->
-	  <div class="collapse navbar-collapse navbar-right" id="menu">
-	    <ul class="nav navbar-nav">
-		    <li class="dropdown">
-	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>
-	        <ul id="settings-view" class="dropdown-menu">
-	          <li><a href="#"><input value="file" checked type="checkbox"> file</a></li>
-	          <li><a href="#"><input value="namespace" checked type="checkbox"> namespace</a></li>
-	          <li><a href="#"><input value="class" checked type="checkbox"> class</a></li>
-	          <li><a href="#"><input value="mixin" checked type="checkbox"> mixin</a></li>
-	          <li class="divider"></li>
-	          <li><a href="#"><input value="method" type="checkbox"> method</a></li>
-	          <li><a href="#"><input value="property" type="checkbox"> property</a></li>
-	          <li><a href="#"><input value="static" type="checkbox"> static</a></li>
-	          <li class="divider"></li>
-	          <li><a href="#"><input value="public" checked type="checkbox"> public</a></li>
-	          <li><a href="#"><input value="private" checked type="checkbox"> private</a></li>
-	          <li><a href="#"><input value="protected" checked type="checkbox"> protected</a></li>
-	          <li class="divider"></li>
-	          <li><a href="#"><input value="deprecated" type="checkbox"> deprecated</a></li>
-	        </ul>
-			</li>
-	    </ul>
-	  </div><!-- /.navbar-collapse -->
+	<nav class="navbar navbar-fixed-top navbar-dark bg-primary">
+		<button &="click:collapse(#nav)" class="navbar-toggler" type="button">
+		&#9776;	
+		</button>
+		<a class="navbar-brand"><%=name %></a>
 	</nav>
+	
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse navbar-right" id="nav">
+	<ul class="nav navbar-nav">
+		<li class="dropdown">
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>
+		<ul id="settings-view" class="dropdown-menu">
+		  <li><a href="#"><input value="file" checked type="checkbox"> file</a></li>
+		  <li><a href="#"><input value="namespace" checked type="checkbox"> namespace</a></li>
+		  <li><a href="#"><input value="class" checked type="checkbox"> class</a></li>
+		  <li><a href="#"><input value="mixin" checked type="checkbox"> mixin</a></li>
+		  <li class="divider"></li>
+		  <li><a href="#"><input value="method" type="checkbox"> method</a></li>
+		  <li><a href="#"><input value="property" type="checkbox"> property</a></li>
+		  <li><a href="#"><input value="static" type="checkbox"> static</a></li>
+		  <li class="divider"></li>
+		  <li><a href="#"><input value="public" checked type="checkbox"> public</a></li>
+		  <li><a href="#"><input value="private" checked type="checkbox"> private</a></li>
+		  <li><a href="#"><input value="protected" checked type="checkbox"> protected</a></li>
+		  <li class="divider"></li>
+		  <li><a href="#"><input value="deprecated" type="checkbox"> deprecated</a></li>
+		</ul>
+		</li>
+	</ul>
+  </div><!-- /.navbar-collapse -->
 
-	<div class="container">
-		<div class="col-md-12">
-			<div id="cards">
-			<% docma.eachSymbol(files, function(symbol, tags, value, sid) { %>
-			<div data-id="file-<%- symbol.name %>" class="panel panel-success file">
-				<div class="panel-heading">
-					<div class="pull-right">
-						<span class="label label-default">file</span>
-					</div>
-					<h3 class="panel-title">
-						<a name="<%-symbol.name %>" data-toggle="collapse" href="#file-<%= sid %>-body">
-						<span class="caret"></span>
-						<%- symbol.name %>
-						</a>
-					</h3>
-				</div>
-				<div id="file-<%= sid %>-body" data-toggle="false" class="panel-collapse collapse in">
-					<div class="panel-body">
-						<%= tags.desc && docma.text(tags.desc) %>
-						<ul class="list-unstyled">
-						<% _.each(['author', 'license' ], function(tag) { %>
-							<% if (tags[tag]) { %>
-							<li><strong>@<%= tag %></strong> <%- tags[tag] %></li>
-							<% } %>
-						<% }) %>
-						</ul>
-						<% if (symbol.value) { %>
-						<p><a data-toggle="collapse" href="#source-<%= sid %>">Show Source</a></p>
-						<pre id="source-<%=sid%>" class="ln-right collapse"><code data-prefix="<%=symbol.name%>#" class="lines javascript"><%- symbol.value %></code></pre>
-						<% } %>
-					</div>
-				</div>
-			</div>
-			<% }) %>
-			<% var tree = ''; %>
-			<% docma.eachSymbol(symbols, function(symbol, tags, value, sid) { %>
-				<% var tagArray = tags.toArray(); %>
-				<% tree += '<li>' + docma.link(symbol) + '</li>'; %>
-				<div data-id="<%- symbol.id %>" class="panel <%= tags.private ? 'panel-warning' : 'panel-default' %> <%= tagArray.join(' ') %>">
-					<div class="panel-heading">
-						<div class="pull-right">
-						<% _.each(tagArray, function(tag) { %>
-							<% if (isTagLabel[tag]) { %>
-							<span class="label label-default <%=tag%>"><%= tag %></span>
-							<% } %>
-						<% }) %>	
-						</div>
-						<h3 class="panel-title">
-							<a name="<%-symbol.id %>" data-toggle="collapse" href="#<%= sid %>-body">
-							<span class="caret"></span>
-							<%- symbol.id %>
-							</a>
-						</h3>
-					</div>
-				<div id="<%= sid %>-body" data-toggle="false" class="panel-collapse collapse in">
-					<div class="panel-body">
-						<% if (typeof tags.deprecated==='string') { %>
-							<div class="alert alert-danger">deprecated <%- tags.deprecated %></div>
-						<% } %>
-						
-						<p><code><%- symbol.value %></code></p>
-						
-						<table class="table table-condensed"><% _.each(value && value.parameters, function(p) {
-							if (p.tags.desc) { %>
-								<tr>
-								<td width="18%"><%-p.name %></td>
-								<td width="18%"><%-p.type %></td>
-								<td width="64%"><%=p.tags.desc%></td>
-								</tr>
-							<% }
-						 }) %></table>
-						<% if (tags.desc) { %>
-						<%= docma.text(tags.desc) %>
-						<% } %>
-						<ul class="list-unstyled">
-							<% if (tags.returns) { %>
-							<li><strong>@returns</strong> <code><%- tags.returns %></code> <%- tags.returns.desc %></li>
-							<% } %>
-						<% _.each(['extends', 'throws', 'author', 'alias'], function(tag) { %>
-							<% if (tags[tag]) { %>
-							<li><strong>@<%= tag %></strong> <%- tags[tag] %></li>
-							<% } %>
-						<% }) %>
-						</ul>
-						
-						<% if (value && value.properties) { %>
-						<fieldset>
-						<legend><small>Static Members</small></legend>
-							<% docma.eachSymbol(value.properties, function(prop) { %>
-									<div class="col-sm-3 col-xs-6"><%= docma.link(prop, prop.name) %></a></div>	
-							<% }) %>
-						</fieldset>
-							<% if (value.properties.prototype && value.properties.prototype.value) { %>
-						<fieldset>
-						<legend><small>Instance Members</small></legend>
-							<% docma.eachSymbol(value.properties.prototype.value.properties, function(prop) { %>
-								<div class="col-sm-3 col-xs-6"><%= docma.link(prop, prop.name) %></a></div>	
-							<% }) %>
-							<% } %>
-						<% } %>
-						</fieldset>
-						<% if (symbol.source) { %>
-						<small class="pull-right">
-							<a onclick="go(this)" href="#<%= symbol.source %>">
-							<i class="fa fa-code"></i> view source
-							</a>
-						</small>
-						<% } %>
-					</div>
-				</div>
-				</div>
-			<% }); %>
-			</div>
-		</div>
-	</div>
-	<footer class="text-center">
+<div class="cxl-body">
+	<section id="cards" class="container">
+		<%= cards.join('') %>
+	</section>
+
+	<footer class="text-xs-center">
 		<small>Generated by <a href="https://github.com/j5g3/docma">j5g3.docma</a></small>
 	</footer>
-	
-	<script>
-	$(function() {
-	var
-		cards = $('#cards').children(),
-		search_input = $('#search'),
-		search_delay = 300,
-		search_id,
-		search_view,
-		
-		$window = $(window),
-		$settings = {
-			view: $('#settings-view input')
-		},
-		$active,
-		$tree = $('#tree'),
-		
-		get_filter = function()
-		{
-			return $.makeArray($settings.view.map(function(input) {
-				return this.checked ? 'filter-' + this.value : null;
-			})).join(' ');
-		},
-		
-		filter = function(ev)
-		{
-			$('#cards').removeClass().addClass(get_filter());	
-			ev && ev.stopPropagation();
-		},
-		
-		resize = function()
-		{
-			$tree.css('max-height', $window.height()-70);
-		}
-	;
-		function scroll(el)
-		{
-			$('html, body').animate({
-		        scrollTop: el.offset().top -60
-		    }, 1000);	
-		}
-		
-		window.go = function go(link)
-		{
-			if ($active)
-				$active.hide();
-				
-			var $link = $('a[name="' + link.hash.substr(1) + '"]'); 	
-			
-			$active = $link.parents('.panel').show();
-			$link.parents('.collapse').eq(0).collapse('show');
-			scroll($link);
-			
-			return false;			
-		}
-		
-		
-		search_input.keyup(function() {
-			if (search_id)
-				clearTimeout(search_id);
-				
-			search_id = setTimeout(search, search_delay);		
-		});
-		filter();
-		
-		$tree.html('<%= tree %>');
-		$settings.view.click(filter);
-		$window.resize(resize).resize();
-		
-		<%
-			setTimeout(function() {
-				if (!window.hljs)
-					return;
-					
-				hljs.initHighlighting();
-				$('code.lines').each(function() {
-					this.innerHTML = docma.addSourceLineNumbers(
-						this.innerHTML, this.dataset.prefix
-					);
-				});
-			});
-		%>
-	});
-	</script>
-<% if (full) { %>
-	<!-- Manually load scripts if life -->
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/languages/javascript.min.js"></script>
-</body>
-</html>
-<% } %>
+</div>
+

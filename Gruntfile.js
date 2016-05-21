@@ -1,8 +1,10 @@
 module.exports = function(grunt) {
 
-	var _ = require('underscore');
-	var template = "j5g3.Docma.template =" +
-		_.template(grunt.file.read('themes/default.html')).source.toString()
+	var _ = require('lodash');
+	var template = "Docma.template =" +
+		_.template(grunt.file.read('themes/default.html')).source.toString() +
+		"\n; Docma.itemTemplate =" +
+		_.template(grunt.file.read('themes/item-default.html')).source.toString()
 	;
 
 	grunt.initConfig({
@@ -27,17 +29,24 @@ module.exports = function(grunt) {
 				stripBanners: true,
 				footer: template
 			},
-
+			
 			docma: {
 				src: [
-					'node_modules/esprima/esprima.js',
-					'node_modules/underscore/underscore.js',
-					'node_modules/j5g3.inference/node_modules/j5g3.jsdoc-parser/jsdoc-parser.js',
-					'node_modules/j5g3.inference/inference.js',
+					'node_modules/@cxl/cxl/dist/cxl.js',
+					'node_modules/j5g3.inference/build/inference.js',
+					'node_modules/highlight.js/lib/highlight.js',
+					//'node_modules/highlight.js/lib/languages/javascript.js',
 					'<%= jshint.docma.src %>'
 				],
 				dest: 'build/docma.js'
 			},
+			
+			css: {
+				src: [
+					'node_modules/@cxl/cxl/dist/cxl.css'
+				],
+				dest: 'build/docma.css'
+			}
 		},
 
 		uglify: {
@@ -51,7 +60,7 @@ module.exports = function(grunt) {
 
 		watch: {
 			docma: {
-				files: '<%= jshint.docma.src %>',
+				files: ['<%= jshint.docma.src %>', 'themes/*.html' ],
 				tasks: [ 'jshint:docma' ]
 			}
 		}
