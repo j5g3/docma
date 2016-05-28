@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 			docma: {
 				src: [
 					'node_modules/@cxl/cxl/dist/cxl.js',
-					'node_modules/j5g3.inference/build/inference.js',
+					'node_modules/@cxl/inference/build/inference.js',
 					'node_modules/highlight.js/lib/highlight.js',
 					//'node_modules/highlight.js/lib/languages/javascript.js',
 					'<%= jshint.docma.src %>'

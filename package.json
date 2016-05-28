@@ -3,7 +3,7 @@
 	"version": "0.1.1",
 	"description": "A documentation generation tool for Javascript",
 	"dependencies": {
-		"j5g3.inference": "j5g3/inference",
+		"@cxl/inference": "*",
 		"@cxl/cxl": "*"
 	},
 	

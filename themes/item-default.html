@@ -1,5 +1,6 @@
 
 <% var tagArray = tags.toArray(); %>
+<a name="<%-id %>"></a>
 <div data-id="<%- id %>" class="card card-block <%= tagArray.join(' ') %>">
 	<div class="pull-xs-right">
 	<% _.each(tagArray, function(tag) { %>
@@ -8,9 +9,7 @@
 		<% } %>
 	<% }) %>	
 	</div>
-	<h4 class="card-title">
-		<a name="<%-id %>"></a><%- id %>
-	</h4>
+	<h4 class="card-title"><%- id %></h4>
 	<div id="<%= id %>-body">
 		<% if (typeof tags.deprecated==='string') { %>
 		<div class="alert alert-danger">deprecated <%- tags.deprecated %></div>
@@ -47,7 +46,7 @@
 		<legend><small>Static Members</small></legend>
 
 		<% Docma.eachSymbol(value.properties, function(prop) { %>
-		<div class="col-md-3 col-sm-4 col-xs-6"><%= Docma.link(prop, prop.name) %></a></div>	
+		<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></a></div>	
 		<% }) %>
 		</fieldset>
 
@@ -55,7 +54,7 @@
 		<fieldset>
 		<legend><small>Instance Members</small></legend>
 		<% Docma.eachSymbol(value.properties.prototype.value.properties, function(prop) { %>
-			<div class="col-md-3 col-sm-4 col-xs-6"><%= Docma.link(prop, prop.name) %></a></div>	
+			<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></a></div>	
 		<% })}} %>
 		</fieldset>
 			
