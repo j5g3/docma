@@ -1,16 +1,16 @@
 {
 	"name": "@cxl/docma",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A documentation generation tool for Javascript",
 	"dependencies": {
-		"@cxl/inference": "*",
 		"@cxl/cxl": "*"
 	},
 	
-	"files": [ "docma.js", "bin/docma.js", "themes/default.html" ],
+	"files": [ "build", "bin/docma.js", "themes" ],
 	"main": "docma.js",
 	"bin": { "docma": "bin/docma.js" },
-	"license": "GPLv3",
+	"license": "GPL-3.0",
+	"scripts": { "prepublish": "grunt minify" },
 	
 	"devDependencies": {
 		"grunt": "*",
@@ -21,6 +21,7 @@
 		"grunt-contrib-watch": "*",
 		"grunt-contrib-uglify": "*",
 		
+		"@cxl/inference": "*",
 		"highlight.js": "*"
 	}	
 }
