@@ -61,7 +61,7 @@ module.exports = function(grunt) {
 		watch: {
 			docma: {
 				files: ['<%= jshint.docma.src %>', 'themes/*.html' ],
-				tasks: [ 'jshint:docma' ]
+				tasks: [ 'default' ]
 			}
 		}
 

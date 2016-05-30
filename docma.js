@@ -205,7 +205,7 @@
 		;
 			if (!linkCache[id])
 				linkCache[id] = this.get_icons(symbol) + '<a onclick="go(this)" href="#' +
-				id + '"> ';
+				id + '">';
 
 			return linkCache[id] + (label||id) + '</a>';
 		},

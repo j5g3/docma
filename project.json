@@ -1,0 +1,11 @@
+{
+	"plugins": [ "watch" ],
+	"watch": {
+		"rules": {
+			"docma": {
+				"files": ["docma.js", "themes/*.html"],
+				"tasks": "grunt"
+			}
+		}
+	}
+}

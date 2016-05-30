@@ -46,7 +46,7 @@
 		<legend><small>Static Members</small></legend>
 
 		<% Docma.eachSymbol(value.properties, function(prop) { %>
-		<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></a></div>	
+		<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></div>	
 		<% }) %>
 		</fieldset>
 
@@ -54,7 +54,7 @@
 		<fieldset>
 		<legend><small>Instance Members</small></legend>
 		<% Docma.eachSymbol(value.properties.prototype.value.properties, function(prop) { %>
-			<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></a></div>	
+			<div class="col-lg-3 col-md-4 col-sm-6"><%= Docma.link(prop, prop.name) %></div>	
 		<% })}} %>
 		</fieldset>
 			
