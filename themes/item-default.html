@@ -15,7 +15,7 @@
 		<div class="alert alert-danger">deprecated <%- tags.deprecated %></div>
 		<% } %>
 
-		<p><code><%- obj.value %></code></p>
+		<p><code><%- obj.value.toString() %></code></p>
 
 		<table class="table table-condensed">
 		<% _.each(obj.value && value.parameters, function(p) { if (p.tags.desc) { %>

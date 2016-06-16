@@ -10,9 +10,9 @@
     {
 		/* global exports */
 		/* global require */
-        factory(exports, require('j5g3.inference').Inference, root, require('@cxl/cxl'), require('highlight.js'), require('lodash'));
+        factory(exports, require('@cxl/inference').Inference, root, require('@cxl/cxl'), require('highlight.js'), require('lodash'));
     } else {
-        factory(/** @type {object} */root, root.j5g3.Inference, root, root.cxl, root.hljs, root._);
+        factory(/** @type {object} */root, root.Inference, root, root.cxl, root.hljs, root._);
     }
 }(this, function (exports, Inference, window, cxl, hljs, _) {
 	'use strict';
@@ -204,7 +204,7 @@
 			id=symbol.id
 		;
 			if (!linkCache[id])
-				linkCache[id] = this.get_icons(symbol) + '<a onclick="go(this)" href="#' +
+				linkCache[id] = this.get_icons(symbol) + ' <a onclick="go(this)" href="#' +
 				id + '">';
 
 			return linkCache[id] + (label||id) + '</a>';
