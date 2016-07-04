@@ -5,8 +5,8 @@
 		pre.ln-right .line { position: absolute; left: 0; width: 45px; text-align: right; display: inline-block;}
 		legend { font-size: 17px; margin-bottom: 5px; }
 		legend:only-child { display: none; }
-		fieldset { margin-bottom: 10px; }
 		footer { margin-bottom: 16px; }
+		a[name] { display: block; padding-bottom: 16px; }
 		
 		#cards > .panel { margin-bottom: 10px; }
 		#cards.filter-namespace > .namespace,
@@ -29,20 +29,33 @@
 		
 		.label.desc, .label.extends, .label.author, .label.alias { display: none; }
 		.label.deprecated { background-color: #d9534f; }
+		.example { margin-bottom: 0; }
 		
 		#tree { overflow-y: auto; }
 	</style>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
 
-	<nav class="navbar navbar-fixed-top navbar-dark bg-primary">
+	<nav class="navbar navbar-dark bg-primary">
 		<button &="click:collapse(#nav)" class="navbar-toggler" type="button">
 		&#9776;	
 		</button>
 		<a class="navbar-brand"><%=name %></a>
 	</nav>
 	
+	<div class="drawer drawer-left collapse collapse-x" &="nav" id="nav">
+		<div class="drawer-content">
+			<div class="nav">
+				<fieldset class="form-group">
+					<input type="text" class="form-control" id="search" placeholder="Search">
+				</fieldset>
+			</div>
+			<ul class="nav">
+				<li><%= obj.nav.join('</li><li>') %></li>
+			</ul>
+		</div>
+	</div>
   <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse navbar-right" id="nav">
+  <div class="collapse navbar-collapse navbar-right">
 	<ul class="nav navbar-nav">
 		<li class="dropdown">
 		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>

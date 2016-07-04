@@ -155,9 +155,20 @@
 					return options.ignore.test(k);
 				});
 			
-			options.cards = Docma.mapSymbol(options.symbols, options.itemTemplate);
+			this.generateHTML(options);
 
 			return cxl.compile(options.template, options);
+		},
+		
+		generateHTML: function(options)
+		{
+			options.cards = [];
+			options.nav = [];
+			
+			Docma.eachSymbol(options.symbols, function(s) {
+				options.cards.push(options.itemTemplate(s));
+				options.nav.push(Docma.link(s, s.id));
+			});
 		}
 
 	};
@@ -204,7 +215,7 @@
 			id=symbol.id
 		;
 			if (!linkCache[id])
-				linkCache[id] = this.get_icons(symbol) + ' <a onclick="go(this)" href="#' +
+				linkCache[id] = this.get_icons(symbol) + ' <a href="#' +
 				id + '">';
 
 			return linkCache[id] + (label||id) + '</a>';
@@ -241,7 +252,7 @@
 		text: function(text)
 		{
 			if (text instanceof Array)
-				text = text.join('</p><p>');
+				text = text.join("\n\n");
 
 			text = _.escape(text).replace(/\n\n/g, '</p><p>');
 			

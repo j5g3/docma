@@ -1,7 +1,7 @@
 
 <% var tagArray = tags.toArray(); %>
 <a name="<%-id %>"></a>
-<div data-id="<%- id %>" class="card card-block <%= tagArray.join(' ') %>">
+<div data-id="<%- id %>" class="card card-block">
 	<div class="pull-xs-right">
 	<% _.each(tagArray, function(tag) { %>
 		<% if (Docma.isTagLabel[tag]) { %>
@@ -35,7 +35,7 @@
 			<li><strong>@returns</strong> <code><%- tags.returns %></code> <%- tags.returns.desc %></li>
 		<% } %>
 
-		<% _.each(['extends', 'throws', 'author', 'alias'], function(tag) { %>
+		<% _.each(['extends', 'throws', 'author', 'alias', 'since'], function(tag) { %>
 		<% if (tags[tag]) { %>
 			<li><strong>@<%- tag %></strong> <%- tags[tag] %></li>
 		<% }}) %>
@@ -59,7 +59,8 @@
 		</fieldset>
 			
 		<% if (tags.example) { %>
-			<pre><%- tags.example%></pre>
+			<strong>@example</strong>
+			<pre class="example"><%- tags.example%></pre>
 		<% } %>
 
 		<% if (obj.source) { %>
